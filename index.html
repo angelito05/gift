@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un Tesoro Especial</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Permanent Marker', cursive;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .main-viewport {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            width: 100%;
+            position: relative;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.8s, opacity 0.5s;
+            z-index: 100;
+            animation: floatEnvelope 3s ease-in-out infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes floatEnvelope {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .envelope {
+            position: relative;
+            width: 400px;
+            height: 280px;
+            background: linear-gradient(135deg, #f3cf7a 0%, #e2bc67 100%);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-radius: 5px;
+        }
+
+        .envelope::before {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            border-top: 140px solid transparent;
+            border-right: 200px solid #e2bc67;
+            border-bottom: 140px solid #e2bc67;
+            border-left: 200px solid #d4ad5b;
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-top: 150px solid #d4ad5b;
+            transform-origin: top;
+            transition: transform 0.8s 0.3s;
+            z-index: 3;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+
+        /* SELLO CON CORAZÓN */
+        .seal {
+            position: absolute;
+            top: 120px;
+            left: 175px;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #dc2626 0%, #991b1b 100%);
+            border-radius: 50%;
+            z-index: 4;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            transition: transform 0.5s;
+            border: 3px solid #991b1b;
+            animation: pulseSeal 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseSeal {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 6px 25px rgba(220, 38, 38, 0.8); }
+        }
+
+        /* CAMBIO: Se sustituye la calavera por el corazón */
+        .seal::after { content: "🩵"; }
+
+        .envelope-wrapper.open .flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-wrapper.open .seal { transform: scale(0) rotate(360deg); opacity: 0; }
+        .envelope-wrapper.open {
+            transform: translateY(150%) scale(0);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.8s 0.8s, opacity 0.5s 1.2s;
+        }
+
+        .instruction {
+            margin-top: 30px;
+            color: white;
+            font-size: 1.4em;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
+            animation: pulsoHint 2s ease-in-out infinite;
+            text-align: center;
+        }
+
+        @keyframes pulsoHint {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.08); }
+        }
+
+        /* --- CONTENIDO DE LA CARTA --- */
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
+            padding: 50px 40px;
+            max-width: 700px;
+            width: calc(100% - 40px);
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 10px #f59e0b, 0 0 0 15px #1e3c72;
+            position: absolute;
+            z-index: 10;
+            opacity: 0;
+            transform: scale(0.3) rotateY(30deg);
+            transition: all 1.2s 1.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        .container.show {
+            opacity: 1;
+            transform: scale(1) rotateY(0deg);
+            pointer-events: all;
+            visibility: visible;
+            position: relative;
+            margin: 20px auto 60px auto;
+        }
+
+        .waves {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23ffffff" fill-opacity="0.1"/></svg>');
+            background-size: cover;
+            animation: wave 10s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes wave {
+            0% { background-position: 0 0; }
+            100% { background-position: 1200px 0; }
+        }
+
+        .sparkles { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+        .sparkle { position: absolute; width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; animation: sparkle 2s infinite; opacity: 0; }
+        @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1); } }
+        
+        .sparkle:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+        .sparkle:nth-child(2) { top: 20%; right: 20%; animation-delay: 0.5s; }
+        .sparkle:nth-child(3) { bottom: 20%; left: 30%; animation-delay: 1s; }
+        .sparkle:nth-child(4) { bottom: 30%; right: 25%; animation-delay: 1.5s; }
+
+        .jolly-roger {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            background: #000; border-radius: 50%; position: relative;
+            animation: girar 3s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
+        }
+        @keyframes girar { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(360deg) scale(1.1); } }
+        .jolly-roger::before { content: "☠️"; position: absolute; font-size: 70px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        
+        h1 { font-family: 'Bangers', cursive; font-size: 3em; color: #dc2626; text-shadow: 3px 3px 0 #f59e0b, 6px 6px 0 #1e3c72; margin-bottom: 20px; }
+        
+        .wanted-poster {
+            background: linear-gradient(to bottom, #fef3c7 0%, #fde68a 100%);
+            border: 5px solid #92400e; padding: 25px; margin: 30px 0;
+            position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .wanted-poster::before {
+            content: "WANTED"; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: #dc2626; color: white; padding: 5px 30px; font-family: 'Bangers'; font-size: 1.5em; border: 3px solid #92400e;
+        }
+        
+        .mensaje { font-size: 1.3em; color: #1e3c72; line-height: 1.8; margin: 20px 0; }
+        .firma { font-size: 1.1em; color: #92400e; margin-top: 20px; font-style: italic; }
+        
+        .button {
+            display: inline-block; background: linear-gradient(45deg, #dc2626, #f59e0b);
+            color: white; font-family: 'Bangers'; font-size: 1.5em; padding: 15px 40px;
+            border-radius: 50px; text-decoration: none; margin-top: 30px; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4); transition: 0.3s;
+        }
+        .button:hover { transform: scale(1.1) rotate(-2deg); }
+
+        @media (max-width: 768px) {
+            .envelope { width: 300px; height: 210px; }
+            .envelope::before { border-top: 105px solid transparent; border-right: 150px solid #e2bc67; border-bottom: 105px solid #e2bc67; border-left: 150px solid #d4ad5b; }
+            .flap { border-left: 150px solid transparent; border-right: 150px solid transparent; border-top: 112px solid #d4ad5b; }
+            .seal { top: 90px; left: 130px; width: 60px; height: 60px; font-size: 30px; }
+            h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="waves"></div>
+    
+    <div class="main-viewport">
+        <div class="envelope-wrapper" id="envelope">
+            <div class="envelope">
+                <div class="flap"></div>
+                <div class="seal"></div>
+            </div>
+            <div class="instruction">✨ ¡Haz clic en el corazón para abrir! ✨</div>
+        </div>
+
+        <div class="container" id="card">
+            <div class="sparkles">
+                <div class="sparkle"></div>
+                <div class="sparkle"></div>
+                <div class="sparkle"></div>
+                <div class="sparkle"></div>
+            </div>
+
+            <div class="jolly-roger"></div>
+            <h1>¡TESORO ENCONTRADO!</h1>
+            
+            <div class="wanted-poster">
+                <p class="mensaje">
+                    Para ti, mi tesoro más preciado 💙💙
+                    <br><br>
+                    En este inmenso mar llamado vida, cruzarse contigo fue encontrar el tesoro que nunca supe que estaba buscando.
+                    <br><br>
+                    Cada día a tu lado es una nueva aventura, y no hay tormenta que no podamos enfrentar juntos.
+                    <br><br>
+                    Quiero navegar contigo hacia el horizonte, explorar cada amanecer y vivir mil historias más.
+                </p>
+                <p class="firma">
+                    ~ Con todo mi corazón, pueblerino, tu eterno compañero de aventuras ~
+                </p>
+            </div>
+            
+            <a href="https://youtu.be/vMJfIPHE3XA?si=AYgVPI0ULD75liHE" target="_blank" class="button">
+                ¡DESCUBRE TU REGALO!
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        const envelope = document.getElementById('envelope');
+        const card = document.getElementById('card');
+
+        envelope.addEventListener('click', () => {
+            envelope.classList.add('open');
+            setTimeout(() => {
+                envelope.style.display = 'none';
+                card.classList.add('show');
+                for(let i = 0; i < 30; i++) { createConfetti(); }
+            }, 1500);
+        });
+
+        document.querySelector('.button').addEventListener('click', () => {
+            for(let i = 0; i < 40; i++) { createConfetti(); }
+        });
+        
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = '10px';
+            confetti.style.height = '10px';
+            confetti.style.backgroundColor = ['#f59e0b', '#dc2626', '#1e3c72'][Math.floor(Math.random() * 3)];
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-10px';
+            confetti.style.borderRadius = '50%';
+            confetti.style.zIndex = '1000';
+            document.body.appendChild(confetti);
+            
+            let pos = -10;
+            let rotation = 0;
+            const horizontalMove = (Math.random() - 0.5) * 200;
+            const interval = setInterval(() => {
+                pos += 5;
+                rotation += 10;
+                confetti.style.top = pos + 'px';
+                confetti.style.transform = `translateX(${horizontalMove}px) rotate(${rotation}deg)`;
+                if(pos > window.innerHeight) { clearInterval(interval); confetti.remove(); }
+            }, 20);
+        }
+    </script>
+</body>
+</html>
